@@ -14,7 +14,7 @@ function createCard(link, altText, name, deleteHandler) {
   cardImage.alt = altText;
   cardElement.querySelector(".card__title").textContent = name; //наполняем содержимым
   const cardDeleteButton = cardElement.querySelector(".card__delete-button"); // выбрали кнопку удаления
-  cardDeleteButton.addEventListener("click", deleteCard); //слушатель удаления
+  cardDeleteButton.addEventListener("click", deleteHandler); //слушатель удаления
   return cardElement; //возвращаем карточку
 }
 //функция добавлния карточки в дом
@@ -30,6 +30,6 @@ function deleteCard(event) {
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (item) {
-  const card = createCard(item.link, item.name, deleteCard); // передаем картинки и текст
+  const card = createCard(item.link, item.altText, item.name, deleteCard); // передаем картинки и текст и удаление
   addCard(card);
 });
