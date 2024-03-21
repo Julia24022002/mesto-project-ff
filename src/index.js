@@ -83,19 +83,6 @@ saveButton.forEach((button) => {
     closeModal(popup);
   });
 });
-//обработчик клик на оверлей для закрытия попапа
-popup.forEach((popup) => {
-  popup.addEventListener("click", function (event) {
-    closePopupByOverlay(event, popup);
-  });
-});
-
-//обработчик клик на Esc для закрытия попапа
-popup.forEach((popup) => {
-  popup.addEventListener("keydown", function (event) {
-    closePopupOnEsc(event, popup);
-  });
-});
 
 //крестик
 const closeButton = document.querySelectorAll(".popup__close");
