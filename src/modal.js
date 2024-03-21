@@ -1,0 +1,21 @@
+//функция открытия модального окна и добавление слушателя
+export function openModal(popup) {
+  popup.classList.add("popup_is-opened");
+  popup.classList.add("popup_is-animated"); //анимация
+  document.addEventListener("keydown", (event) => {
+    closePopupOnEsc(event, popup); // добавляем при открытии обработчик
+  });
+}
+
+//функция закрытия модального окна и снятие слушателя
+export function closeModal(popup) {
+  popup.classList.remove("popup_is-opened");
+  document.removeEventListener("keydown", closePopupOnEsc); //убираем обработчик при закрытии
+}
+
+//функция закрытия через  Esc
+function closePopupOnEsc(event, popup) {
+  if (event.key === "Escape") {
+    closeModal(popup);
+  }
+}
