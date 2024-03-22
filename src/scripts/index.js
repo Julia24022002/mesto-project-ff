@@ -1,7 +1,12 @@
-import "./pages/index.css"; // добавьте импорт главного файла стилей
-import { initialCards } from "./cards"; //иморт карточек
-import { createCard, deleteCard, likeButton } from "./card";
-import { openModal, closeModal } from "./modal";
+import "../pages/index.css"; // добавьте импорт главного файла стилей
+import { initialCards } from "../scripts/cards"; //иморт карточек
+import { createCard, deleteCard, likeButton } from "../scripts/card";
+import {
+  openModal,
+  closeModal,
+  closePopupOnEsc,
+  closePopupByOverlay,
+} from "../scripts/modal";
 
 // @todo: DOM узлы
 const cardContainer = document.querySelector(".places__list");
@@ -84,6 +89,20 @@ saveButton.forEach((button) => {
   });
 });
 
+//обработчик клик на Esc для закрытия попапа
+popup.forEach((popup) => {
+  popup.addEventListener("keydown", function (event) {
+    closePopupOnEsc(event, popup);
+  });
+});
+
+//обработчик клик на оверлей для закрытия попапа
+popup.forEach((popup) => {
+  popup.addEventListener("click", function (event) {
+    closePopupByOverlay(event, popup);
+  });
+});
+
 //крестик
 const closeButton = document.querySelectorAll(".popup__close");
 //клик на крестик
@@ -93,12 +112,6 @@ closeButton.forEach((button) => {
     closeModal(popup);
   });
 });
-//функция закрытия через  оверлей
-function closePopupByOverlay(event, popup) {
-  if (event.target === popup) {
-    closeModal(popup);
-  }
-}
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (item) {
