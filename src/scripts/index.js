@@ -1,6 +1,6 @@
 import "../pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "../scripts/cards"; //иморт карточек
-import { createCard, deleteCard, likeButton } from "../scripts/card";
+import { createCard, deleteCard, likeCard } from "../scripts/card";
 import {
   openModal,
   closeModal,
@@ -10,7 +10,7 @@ import {
 
 // @todo: DOM узлы
 const cardContainer = document.querySelector(".places__list");
-const popup = document.querySelectorAll(".popup"); //все попапы
+const popups = document.querySelectorAll(".popup"); //все попапы
 const profileTitle = document.querySelector(".profile__title"); // Выберите элементы, куда должны быть вставлены значения полей
 const profileDesc = document.querySelector(".profile__description");
 const editButton = document.querySelector(".profile__edit-button"); //кнопка редактировать
@@ -20,22 +20,25 @@ const popupNew = document.querySelector(".popup_type_new-card"); // попап �
 const popupTypeImages = document.querySelector(".popup_type_image"); //картинка попап
 const popupImages = document.querySelector(".popup__image");
 const popupCaption = document.querySelector(".popup__caption");
-const formElement = document.querySelector(".popup__form"); // Находим форму в DOM
-const nameInput = formElement.querySelector(".popup__input_type_name"); // Находим поля формы в DOM
-const jobInput = formElement.querySelector(".popup__input_type_description");
+const profileForm = document.forms["edit-profile"]; // Находим форму в DOM
+const nameInput = profileForm.querySelector(".popup__input_type_name"); // Находим поля формы в DOM
+const jobInput = profileForm.querySelector(".popup__input_type_description");
 const formElementPlace = document.forms["new-place"]; // вывод новых карточек на страницу
 
 // Обработчик «отправки» формы, хотя пока она никуда отправляться не будет
-function handleSubmit(evt) {
+function handleProfileFormSubmit(evt) {
   evt.preventDefault(); //  отмена стандартной отправки формы.
   const nameValue = nameInput.value; // Получите значение полей  из свойства value
   const jobValue = jobInput.value;
   // Вставьте новые значения с помощью textContent (Обновляем отображение на странице)
   profileTitle.textContent = nameValue;
   profileDesc.textContent = jobValue;
+
+  const popup = profileForm.closest(".popup");
+  closeModal(popup);
 }
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
-formElement.addEventListener("submit", handleSubmit);
+profileForm.addEventListener("submit", handleProfileFormSubmit);
 
 formElementPlace.addEventListener("submit", (evt) => {
   evt.preventDefault();
@@ -49,8 +52,8 @@ formElementPlace.addEventListener("submit", (evt) => {
     altText,
     name,
     deleteCard,
-    likeButton,
-    cardPopup
+    likeCard,
+    handleCardClick
   );
   cardContainer.prepend(cardElements);
   formElementPlace.reset();
@@ -62,8 +65,9 @@ function addCard(cardElement) {
 }
 
 // функция открытия карточки
-function cardPopup(link, name) {
+function handleCardClick(link, name) {
   popupImages.src = link;
+  popupImages.alt = name;
   popupCaption.textContent = name;
   openModal(popupTypeImages);
 }
@@ -80,26 +84,10 @@ addButton.addEventListener("click", function () {
   openModal(popupNew);
 });
 
-// кнопка сохранить
-const saveButton = document.querySelectorAll(".popup__button");
-saveButton.forEach((button) => {
-  button.addEventListener("click", function () {
-    const popup = button.closest(".popup");
-    closeModal(popup);
-  });
-});
-
-//обработчик клик на Esc для закрытия попапа
-popup.forEach((popup) => {
-  popup.addEventListener("keydown", function (event) {
-    closePopupOnEsc(event, popup);
-  });
-});
-
 //обработчик клик на оверлей для закрытия попапа
-popup.forEach((popup) => {
-  popup.addEventListener("click", function (event) {
-    closePopupByOverlay(event, popup);
+popups.forEach((popups) => {
+  popups.addEventListener("click", function (event) {
+    closePopupByOverlay(event, popups);
   });
 });
 
@@ -108,8 +96,8 @@ const closeButton = document.querySelectorAll(".popup__close");
 //клик на крестик
 closeButton.forEach((button) => {
   button.addEventListener("click", function () {
-    const popup = button.closest(".popup");
-    closeModal(popup);
+    const popups = button.closest(".popup");
+    closeModal(popups);
   });
 });
 
@@ -117,11 +105,11 @@ closeButton.forEach((button) => {
 initialCards.forEach(function (item) {
   const card = createCard(
     item.link,
-    item.altText,
+    item.name,
     item.name,
     deleteCard,
-    likeButton,
-    cardPopup
+    likeCard,
+    handleCardClick
   ); // передаем картинки и текст и удаление
   addCard(card);
 });

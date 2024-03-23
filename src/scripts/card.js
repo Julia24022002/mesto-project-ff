@@ -5,7 +5,7 @@ export function createCard(
   name,
   deleteHandler,
   likeButton,
-  cardPopup
+  handleCardClick
 ) {
   const cardTemplate = document.querySelector("#card-template").content; // @todo: Темплейт карточки
   const cardElement = cardTemplate
@@ -31,7 +31,7 @@ export function createCard(
 
   // слушатель на открытие карточки
   cardImage.addEventListener("click", function () {
-    cardPopup(link, name);
+    handleCardClick(link, name);
   });
 
   return cardElement; //возвращаем карточку
@@ -44,6 +44,6 @@ export function deleteCard(event) {
 }
 
 //функция изменения статуса сердечка карточки
-export function likeButton(cardLikeButton) {
+export function likeCard(cardLikeButton) {
   cardLikeButton.classList.toggle("card__like-button_is-active");
 }

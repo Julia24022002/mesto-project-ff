@@ -1,7 +1,9 @@
 //функция открытия модального окна и добавление слушателя
 export function openModal(popup) {
-  popup.classList.add("popup_is-opened");
   popup.classList.add("popup_is-animated"); //анимация
+  setTimeout(() => {
+    popup.classList.add("popup_is-opened"); // затем открываем карточку
+  }, 1);
   document.addEventListener("keydown", closePopupOnEsc); // добавляем при открытии обработчик
 }
 
@@ -22,7 +24,6 @@ export function closePopupOnEsc(event) {
 //функция закрытия через  оверлей
 export function closePopupByOverlay(event, popup) {
   if (event.target === popup) {
-    const openedPopup = document.querySelector(".popup_is-opened");
-    closeModal(openedPopup);
+    closeModal(popup);
   }
 }
