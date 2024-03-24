@@ -34,8 +34,7 @@ function handleProfileFormSubmit(evt) {
   profileTitle.textContent = nameValue;
   profileDesc.textContent = jobValue;
 
-  const popup = profileForm.closest(".popup");
-  closeModal(popup);
+  closeModal(popupEdit);
 }
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
 profileForm.addEventListener("submit", handleProfileFormSubmit);
@@ -45,7 +44,7 @@ formElementPlace.addEventListener("submit", (evt) => {
   // передаем новые значения
   const name = formElementPlace["place-name"].value;
   const link = formElementPlace.link.value;
-  const altText = formElementPlace.value;
+  const altText = name;
   // создаем новую карточку
   const cardElements = createCard(
     link,
@@ -57,6 +56,7 @@ formElementPlace.addEventListener("submit", (evt) => {
   );
   cardContainer.prepend(cardElements);
   formElementPlace.reset();
+  closeModal(popupNew);
 });
 
 //функция добавлния карточки в дом
@@ -95,11 +95,12 @@ popups.forEach((popups) => {
 const closeButton = document.querySelectorAll(".popup__close");
 //клик на крестик
 closeButton.forEach((button) => {
-  button.addEventListener("click", function () {
-    const popups = button.closest(".popup");
-    closeModal(popups);
+  const popup = button.closest(".popup");  // 1 раз находим
+  button.addEventListener("click", function () {  // а потом уже клик вешаем
+    closeModal(popup);
   });
 });
+
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (item) {
