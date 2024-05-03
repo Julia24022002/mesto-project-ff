@@ -7,6 +7,30 @@
   background-size: cover;
   background-position: center;
   margin: 0 29px 0 0;
+  position: relative;
+ 
+}
+
+.edit_icon {
+  position: absolute;
+  background: url('../../../images/Vector.svg'); /* Заменяем background на url путь к вашей иконке */
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%; 
+  height: 100%; 
+  padding: 5px;
+  cursor: pointer;
+  display: none;
+  transition: opacity 0.2s;
+  top: 50%; /* Перемещаем иконку в верхнюю часть блока */
+  left: 50%; /* Перемещаем иконку в центр блока */
+  transform: translate(-50%, -50%); 
+}
+
+.profile__image:hover .edit_icon {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.6);
+  
 }
 
 @media screen and (max-width: 740px) {
