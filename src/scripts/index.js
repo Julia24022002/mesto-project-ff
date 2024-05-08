@@ -12,9 +12,9 @@ import { enableValidation, clearValidation } from "../scripts/validation";
 import {
   updateProfile,
   addNewCardToServer,
-  userInfoPromise,
-  cardsPromise,
-  avatarServer,
+  getUserInfo,
+  getCardInfo,
+  getAvatarImage,
 } from "../scripts/api";
 // @todo: DOM узлы
 const cardContainer = document.querySelector(".places__list");
@@ -37,6 +37,7 @@ const profileForm = document.forms["edit-profile"]; // Находим форму
 const nameInput = profileForm.querySelector(".popup__input_type_name"); // Находим поля формы в DOM
 const jobInput = profileForm.querySelector(".popup__input_type_description");
 const formElementPlace = document.forms["new-place"]; // вывод новых карточек на страницу
+const saveButtonProfile = profileForm.querySelector(".button");
 
 // Функция для изменения текста кнопки
 function toggleButtonState(button, isLoading) {
@@ -52,8 +53,6 @@ function toggleButtonState(button, isLoading) {
 // Обработчик «отправки» формы изменения данных о пользователе
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
-
-  const saveButtonProfile = profileForm.querySelector(".button");
   toggleButtonState(saveButtonProfile, true);
 
   const nameValue = nameInput.value;
@@ -63,13 +62,13 @@ function handleProfileFormSubmit(evt) {
     .then((data) => {
       profileTitle.textContent = nameValue;
       profileDesc.textContent = jobValue;
+      closeModal(popupEdit);
     })
     .catch((error) => {
       console.error("Ошибка при обновлении профиля:", error);
     })
     .finally(() => {
       toggleButtonState(saveButtonProfile, false);
-      closeModal(popupEdit);
     });
 }
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
@@ -88,20 +87,19 @@ formElementPlace.addEventListener("submit", (evt) => {
     .then((data) => {
       console.log("карточка успешно добавлена:", data);
       // Создаем новую карточку с данными с сервера
-      const cardElements = createCard(
+      const cardElement = createCard(
         link,
         altText,
         name,
-
         deleteCard,
         likeCard,
         handleCardClick,
         data.likes,
-        data.owner._id, // передаем идентификатор владельца карточки
+        data.ownerId, // передаем идентификатор владельца карточки
         data.userData, // передаем идентификатор текущего пользователя
         data._id // передаем идентификатор карточки
       );
-      cardContainer.prepend(cardElements);
+      cardContainer.prepend(cardElement);
       formElementPlace.reset();
       closeModal(popupNew);
     })
@@ -158,13 +156,14 @@ avatarForm.addEventListener("submit", function (event) {
   toggleButtonState(saveButtonAvatar, true);
   // Получаем ссылку на аватар из поля формы
   const newAvatarUrl = avatarForm.link.value;
-  // Обновляем картинку на странице у пользователя
-  profileImage.style.backgroundImage = `url(${newAvatarUrl})`;
 
   // Вызываем функцию для отправки запроса на сервер
-  avatarServer(newAvatarUrl)
+  getAvatarImage(newAvatarUrl)
     .then((data) => {
       console.log("Аватар успешно обновлен:", data);
+      // Обновляем картинку на странице у пользователя
+      profileImage.style.backgroundImage = `url(${newAvatarUrl})`;
+      closeModal(popupAvatar);
     })
     .catch((error) => {
       console.error("Ошибка при обновлении аватара:", error);
@@ -172,8 +171,6 @@ avatarForm.addEventListener("submit", function (event) {
     .finally(() => {
       toggleButtonState(saveButtonAvatar, false); // Сбрасываем состояние загрузки
     });
-
-  closeModal(popupAvatar);
 });
 
 //обработчик клик на оверлей для закрытия попапа
@@ -195,12 +192,6 @@ closeButton.forEach((button) => {
 });
 
 // валидацияя......................
-// Слушатель события input
-nameInput.addEventListener("input", function (evt) {
-  // Выведем в консоль значение свойства validity.valid поля ввода,  на котором слушаем событие input
-  console.log(evt.target.validity.valid);
-});
-
 // включение валидации вызовом enableValidation все настройки передаются при вызове
 const validationConfig = {
   formSelector: ".popup__form",
@@ -213,14 +204,14 @@ const validationConfig = {
 enableValidation(validationConfig);
 
 // Отображение предзагруженных карточек после получения данных пользователя и карточек
-Promise.all([userInfoPromise(), cardsPromise()])
-  .then(([userData, cardsData]) => {
+Promise.all([getUserInfo(), getCardInfo()])
+  .then(([userData, cardData]) => {
     // Отображение информации о пользователе и карточек на странице
     profileTitle.textContent = userData.name; // имя пользователя
     profileDesc.textContent = userData.about; // описание пользователя
     profileImage.style.backgroundImage = `url(${userData.avatar})`; // аватар пользователя
 
-    cardsData.forEach((card) => {
+    cardData.forEach((card) => {
       const cardElement = createCard(
         card.link,
         card.altText,
@@ -234,7 +225,7 @@ Promise.all([userInfoPromise(), cardsPromise()])
         card._id // передаем идентификатор карточки
       );
       addCard(cardElement);
-      // console.log(cardsData);
+      // console.log(cardData);
     });
   })
   .catch((err) => {

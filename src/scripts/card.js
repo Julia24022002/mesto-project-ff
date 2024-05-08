@@ -5,7 +5,7 @@ export function createCard(
   link,
   altText,
   name,
-  deleteHandler,
+  deleteCard,
   likeButton,
   handleCardClick,
   likes,
@@ -34,7 +34,7 @@ export function createCard(
   // Добавляем обработчик удаления карточки
   if (ownerId === currentUserId) {
     cardDeleteButton.addEventListener("click", (evt) =>
-      deleteHandler(evt, cardId)
+      deleteCard(evt, cardId)
     );
   } else {
     cardDeleteButton.classList.add("card__delete-button-unactive");
@@ -44,6 +44,12 @@ export function createCard(
   cardLikeButton.addEventListener("click", function () {
     likeCard(cardLikeButton, cardId, likeCountElement);
   });
+
+  //  если лайк поставлен мной закрашиваем его
+  if (likes.some((like) => like._id === currentUserId)) {
+    cardLikeButton.classList.add("card__like-button_is-active");
+  }
+
   // слушатель на открытие карточки
   cardImage.addEventListener("click", function () {
     handleCardClick(link, name);
@@ -53,25 +59,39 @@ export function createCard(
 
 // @todo: Функция удаления карточки
 export function deleteCard(event, cardId) {
-  const iconDelete = event.target.closest(".places__item");
-  deleteCardServer(cardId);
-  iconDelete.remove();
+  const cardElement = event.target.closest(".places__item");
+  deleteCardServer(cardId)
+    .then(() => {
+      cardElement.remove();
+    })
+    .catch((error) => {
+      console.error("Ошибка при удалении карточки:", error);
+    });
 }
 
 //функция изменения статуса сердечка карточки
 export function likeCard(cardLikeButton, cardId, likeCountElement) {
-  const isLiked = cardLikeButton.classList.toggle(
+  const isLiked = cardLikeButton.classList.contains(
     "card__like-button_is-active"
   );
-  // делаем отметку понравилась не понравилась
-  const likeChange = isLiked ? 1 : -1;
 
   if (isLiked) {
-    likeCardServer(cardId);
+    unlikeCardServer(cardId)
+      .then(({ likes }) => {
+        cardLikeButton.classList.remove("card__like-button_is-active");
+        likeCountElement.textContent = likes.length; // Обновляем счетчик лайков
+      })
+      .catch((error) => {
+        console.error("Ошибка при снятии лайка:", error);
+      });
   } else {
-    unlikeCardServer(cardId);
+    likeCardServer(cardId)
+      .then(({ likes }) => {
+        cardLikeButton.classList.add("card__like-button_is-active");
+        likeCountElement.textContent = likes.length; // Обновляем счетчик лайков
+      })
+      .catch((error) => {
+        console.error("Ошибка при постановке лайка:", error);
+      });
   }
-  // преобразуем из строки в число
-  likeCountElement.textContent =
-    parseInt(likeCountElement.textContent, 10) + likeChange;
 }
